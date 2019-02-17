@@ -57,7 +57,6 @@ public class BrickClass {
             brickPicture.setLayoutParams(new android.view.ViewGroup.LayoutParams(width / 6,50));
 
             brickField.addView(brickPicture, i);
-            log(i);
         }
         _isBrickWall = true;
         return true;
