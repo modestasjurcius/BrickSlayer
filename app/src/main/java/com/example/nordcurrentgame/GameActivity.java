@@ -24,6 +24,8 @@ import com.example.nordcurrentgame.Classes.BallClass;
 import com.example.nordcurrentgame.Classes.BrickClass;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,10 +33,18 @@ import static java.lang.Math.log;
 
 public class GameActivity extends AppCompatActivity {
 
+    //Imageviews
     public ImageView playerPaddle;
+
+    //layouts
     public ConstraintLayout container;
-    public FrameLayout gameField;
-    public ImageView playerBall;
+
+    //timers
+    private Timer ballTimer;
+
+    //class objects
+    public BrickClass brick;
+    public BallClass playerBall;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -42,7 +52,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        BrickClass brick = new BrickClass(this);
+        brick = new BrickClass(this);
         playerPaddle = (ImageView) findViewById(R.id.paddle);
         container = (ConstraintLayout) findViewById(R.id.container);
 
@@ -69,14 +79,21 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        BallClass playerBall = new BallClass(this);
+        playerBall = new BallClass(this);
+
+        //Start ball timer
+        ballTimer = new Timer();
+        ballTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                playerBall.moveBall();
+            }
+        },0,20);
     }
 
-    //@Override
-    protected void onDraw(Canvas canvas) {
-        //super.onDraw(canvas);
 
-    }
+
+
 
 
         public void log()
@@ -97,9 +114,4 @@ public class GameActivity extends AppCompatActivity {
         Logger log = Logger.getLogger("{Zdarowa}");
         log.log(Level.INFO,msg);
     }
-
-        public void addBricks()
-        {
-            //for(int i)
-        }
 }

@@ -23,9 +23,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BallClass {
-    public Bitmap ballBitmap;
     private ImageView ballPicture;
     private ImageView paddlePicture;
+    private float ballX;
+    private float ballY;
 
     public BallClass(GameActivity activity)
     {
@@ -49,11 +50,19 @@ public class BallClass {
         ballPicture.setX(width / 2);
         ballPicture.setY(height / 2);
 
+        ballX = ballPicture.getX();
+        ballY = ballPicture.getY();
+
         return true;
     }
 
-    public void drawBall(GameActivity activity)
+    public void moveBall()
     {
+        ballX -= 3;
+        ballY -= 3;
+
+        ballPicture.setX(ballX);
+        ballPicture.setY(ballY);
     }
 
     public void log(String x)
