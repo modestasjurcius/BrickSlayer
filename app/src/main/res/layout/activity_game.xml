@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GameActivity"
+    android:id="@+id/container">
+
+
+    <ImageView
+        android:id="@+id/paddle"
+        android:layout_width="85dp"
+        android:layout_height="89dp"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:srcCompat="@drawable/paddle"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="163dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/gameField">
+
+    <GridLayout
+        android:id="@+id/brickField"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="12dp"
+        android:columnCount="6"
+        android:horizontalSpacing="10dp"
+        android:orientation="horizontal"
+        android:rowCount="5"
+        android:textAlignment="center"
+        android:useDefaultMargins="true"
+        android:verticalSpacing="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    </FrameLayout>
+
+
+</android.support.constraint.ConstraintLayout>
