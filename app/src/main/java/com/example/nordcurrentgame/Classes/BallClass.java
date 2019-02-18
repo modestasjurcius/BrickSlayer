@@ -39,9 +39,12 @@ public class BallClass {
     //doubles
     private double locationVectorX;
     private double locationVectorY;
+    private double vectorFunction;
     private double ballX;
     private double ballY;
     private double speed;
+    private double previousBallX;
+    private double previousBallY;
 
     //booleans
     private boolean _isBallMovementUp;
@@ -91,15 +94,11 @@ public class BallClass {
 
         speed = 10;
         //create new random vector to begin game
-        Random r = new Random();
-
-        locationVectorX = 0 + r.nextDouble() * (size.x - 0);
-        //locationVectorY = 0 + r.nextDouble() * (size.y - 0);//-----------------------------------
-        locationVectorY = 0;
+        calcVector();
 
         brickField = activity.findViewById(R.id.brickField);
 
-        calcVector();
+
 
         //log(locationVectorX, "location vector X");
         //log(locationVectorY,"location vector Y");
@@ -109,43 +108,109 @@ public class BallClass {
 
     public void moveBall()
     {
+            calcBallXY();
+
+            if(!isBrickCollision)
+            checkBrickCollision();
+
+            if(!isBrickCollision) {
+                setBallXY();
+            }
+            else {
+                //setBallXYNearBrick();
+            }
+
+
+    }
+
+    public void setBallXY ()
+    {
         BigDecimal tempBallX;
         BigDecimal tempBallY;
 
+        tempBallX = new BigDecimal(ballX);
+        tempBallY = new BigDecimal(ballY);
+
+        ballXFloat = tempBallX.floatValue();
+        ballYFloat = tempBallY.floatValue();
+
+        ballPicture.setX(ballXFloat);
+        ballPicture.setY(ballYFloat);
+
+        log(ballX,"ball X = ");
+        log(ballY, "ball Y = ");
+        log(vectorFunction, "vector function = ");
+    }
+
+    public void calcBallXY()
+    {
+        ballX = ballPicture.getX();
+        ballY = ballPicture.getY();
 
         if(ballX > 0 && ballX+ballPicture.getWidth()<displayWidth && ballY > 0 && ballY+5*ballPicture.getHeight() < displayHeight) {
-            double vectorFunction = (locationVectorY / locationVectorX);
             double deltax, deltay;
+
             deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
-            deltay = Math.sqrt(speed*speed - deltax*deltax);
+            deltay = Math.sqrt(speed * speed - deltax * deltax);
 
-            if(_isBallMovementUp)
-                ballY = (double)ballY - deltay;
+            previousBallX = ballPicture.getX();
+            previousBallY = ballPicture.getY();
+
+            if (_isBallMovementUp)
+                ballY = (double) ballY - deltay;
             else
-                ballY = (double)ballY + deltay;
+                ballY = (double) ballY + deltay;
 
-            if(_isBallMovementLeft)
-                ballX = (double)ballX - deltax;
+            if (_isBallMovementLeft)
+                ballX = (double) ballX - deltax;
             else
-                ballX = (double)ballX + deltax;
+                ballX = (double) ballX + deltax;
 
-            tempBallX =  new BigDecimal(ballX);
-            tempBallY = new BigDecimal(ballY);
 
-            ballXFloat = tempBallX.floatValue();
-            ballYFloat = tempBallY.floatValue();
-
-            checkBrickCollision();
-            if(!isBrickCollision) {
-                ballPicture.setX(ballXFloat);
-                ballPicture.setY(ballYFloat);
-            }
-            else log("true");
         }
+    }
+
+    public void calcBallXYNearBrick(int brickId)
+    {
+        View brick = brickField.getChildAt(brickId);
+
+        double brickX, brickY, brickWidth, brickHeight;
+
+
+        brickWidth = brick.getWidth();
+        brickHeight = brick.getHeight();
+
+        brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
+        brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
+
+        log(brickX + brickWidth,"brick X (right) = ");
+        log(brickY + brickHeight,"brick Y (lower) = ");
+        log(locationVectorX/locationVectorY, "VECTOR REVERSE = ");
+
+        log(ballX, " BALL X = ");
+        log(previousBallX, "PREVIOUS  BALL X = ");
+
+        //interpoliaciniu daugianario metodu :
+        ballY = brickY + brickHeight;
+        ballX = (ballY-(vectorFunction*-1*previousBallX+previousBallY))/vectorFunction;
+
+
+
+        setBallXY();
     }
 
     public void calcVector()
     {
+        Random r = new Random();
+        locationVectorX = 0 + r.nextDouble() * (displayWidth - 0);
+        //locationVectorY = 0 + r.nextDouble() * (size.y - 0);//-----------------------------------
+        locationVectorY = 0;
+
+        if(locationVectorX>displayWidth)
+            locationVectorX = displayWidth;
+        else if(locationVectorX < 0)
+            locationVectorX = 0;
+
         if(locationVectorX<ballX)
             _isBallMovementLeft=true;
         else
@@ -158,6 +223,7 @@ public class BallClass {
 
         locationVectorX = (double) (locationVectorX - ballX);
         locationVectorY = (double) (locationVectorY - ballY);
+        vectorFunction = (locationVectorY / locationVectorX);
         //log(ballX);
         //log(ballY);
     }
@@ -167,25 +233,26 @@ public class BallClass {
         brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
         int brickCount = brickField.getChildCount();
 
-        int brickX, brickY, brickWidth, brickHeight;
+        double brickX, brickY, brickWidth, brickHeight;
 
         for(int i=0; i < brickCount; i++) {
             View brick = brickField.getChildAt(i);
 
-            brickX = (int) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
-            brickY = (int) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
+            brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
+            brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
+
             brickWidth = brick.getWidth();
             brickHeight = brick.getHeight();
 
             //check if ball collides with top
             if(ballX>=brickX && ballX<=brickX + brickWidth && ballY>=brickY && ballY<=brickY + brickHeight ) {
                 isBrickCollision = true;
-                log("crash 1");
-                //brickField.removeView(brick);
+                log(ballX, "COLISION ball X = ");
+                log(ballY, "COLISION ball Y = ");
+                calcBallXYNearBrick(i);
                 brickField.removeViewInLayout(brick);
-                log("crash 2");
-                //log(brickX, "brick " + i + " x = ");
-                //log(brickY, "brick " + i + " y = ");
+                //ballPicture.setY((float) (brickY + brickHeight));
+                //ballPicture.setX((float) ( (brickY + brickHeight) * locationVectorX / locationVectorY));
                 break;
             }
 
