@@ -43,6 +43,10 @@ public class BallClass {
 
     private double speed;
 
+    //booleans
+    private boolean _isBallMovementUp;
+    private boolean _isBallMovementLeft;
+
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
@@ -68,22 +72,23 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        log(width/2);
-        log(height/2);
+        log(ballX, "ballX");
+        log(ballY, "ballY");
 
-        speed = 10;
+        speed = 5;
         //create new random vector to begin game
         Random r = new Random();
 
         locationVectorX = 0 + r.nextDouble() * (size.x - 0);
-        locationVectorY = 0 + r.nextDouble() * (size.y -  0);
+        locationVectorY = 0 + r.nextDouble() * (size.y - 0);
+        //locationVectorY = 0;
 
 
 
         calcVector();
 
-        log(locationVectorX);
-        log(locationVectorY);
+        log(locationVectorX, "location vector X");
+        log(locationVectorY,"location vector Y");
 
         return true;
     }
@@ -95,22 +100,34 @@ public class BallClass {
 
         //if(ballX != 0 && ballY != 0) {
             double vectorFunction = (locationVectorY / locationVectorX);
-            ballX = (double) (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
-            ballY = (double) vectorFunction * ballX;
-            log(ballX);
-            log(ballY);
+            double deltax, deltay;
+            deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
+            deltay = speed / deltax;
+
+            if(_isBallMovementUp)
+                ballY = (double)ballY - deltay;
+            else
+                ballY = (double)ballY + deltay;
+
+            if(_isBallMovementLeft)
+                ballX = (double)ballX - deltax;
+            else
+                ballX = (double)ballX + deltax;
+
+            log(ballX, "ballX");
+            log(ballY,  "ballY");
 
             tempBallX =  new BigDecimal(ballX);
             tempBallY = new BigDecimal(ballY);
-            log("-----------");
+            //log("-----------");
             //log(tempBallX);
             //log(tempBallY);
 
             ballXFloat = tempBallX.floatValue();
             ballYFloat = tempBallY.floatValue();
             log("-----------");
-            log(ballXFloat);
-            log(ballXFloat);
+            log(ballXFloat, "ballX float");
+            log(ballYFloat, "ballY float");
 
             ballPicture.setX(ballXFloat);
             ballPicture.setY(ballYFloat);
@@ -121,8 +138,18 @@ public class BallClass {
 
     public void calcVector()
     {
-        locationVectorX = (locationVectorX - ballX);
-        locationVectorY = (locationVectorY - ballY);
+        if(locationVectorX<ballX)
+            _isBallMovementLeft=true;
+        else
+            _isBallMovementLeft=false;
+
+        if(locationVectorY<ballY)
+            _isBallMovementUp=true;
+        else
+            _isBallMovementUp=false;
+
+        locationVectorX = (double) (locationVectorX - ballX);
+        locationVectorY = (double) (locationVectorY - ballY);
         //log(ballX);
         //log(ballY);
     }
@@ -140,9 +167,9 @@ public class BallClass {
         log.log(Level.INFO,msg);
     }
 
-    public void log(double x)
+    public void log(double x, String s)
     {
-        String msg = "kon to = " + x;
+        String msg = "kon to = " + x + " " + s;
         Logger log = Logger.getLogger("{Zdarowa}");
         log.log(Level.INFO,msg);
     }
