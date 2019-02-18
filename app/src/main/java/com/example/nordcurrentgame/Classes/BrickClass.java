@@ -20,8 +20,14 @@ import java.util.logging.Logger;
 import static java.security.AccessController.getContext;
 
 public class BrickClass {
+    //imageviews
     public ImageView brickPicture;
+
+    //booleans
     private Boolean _isBrickWall;
+
+    //ints
+    public int brickCount;
 
     public BrickClass(GameActivity activity) {
         _isBrickWall=false;
@@ -57,6 +63,7 @@ public class BrickClass {
             brickPicture.setLayoutParams(new android.view.ViewGroup.LayoutParams(width / 6,50));
 
             brickField.addView(brickPicture, i);
+            brickCount=i+1;
         }
         _isBrickWall = true;
         return true;

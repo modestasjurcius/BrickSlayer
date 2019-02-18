@@ -13,7 +13,9 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 
 import com.example.nordcurrentgame.GameActivity;
@@ -37,15 +39,24 @@ public class BallClass {
     //doubles
     private double locationVectorX;
     private double locationVectorY;
-
     private double ballX;
     private double ballY;
-
     private double speed;
 
     //booleans
     private boolean _isBallMovementUp;
     private boolean _isBallMovementLeft;
+    private boolean isBrickCollision;
+
+    //ints
+    private int displayWidth;
+    private int displayHeight;
+
+    //layouts
+    private GridLayout brickField;
+
+    //params
+    public ViewGroup.MarginLayoutParams brickFieldParams;
 
     public BallClass(GameActivity activity)
     {
@@ -57,38 +68,41 @@ public class BallClass {
         paddlePicture = (ImageView) activity.findViewById(R.id.paddle);
         paddlePicture.measure(paddlePicture.getMeasuredWidth(),paddlePicture.getMeasuredHeight());
 
+        isBrickCollision = false;
+
         Display display = activity.getWindowManager().getDefaultDisplay();
 
         Point size = new Point();
         display.getSize(size);
 
-        int width = size.x;
-        int height = size.y;
+        displayWidth = size.x;
+        displayHeight = size.y;
+
         ballPicture = (ImageView) activity.findViewById(R.id.gameBall);
         ballPicture.setVisibility(View.VISIBLE);
-        ballPicture.setX(width / 2);
-        ballPicture.setY(height / 2);
+        ballPicture.setX(displayWidth / 2);
+        ballPicture.setY(displayHeight / 2);
 
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        log(ballX, "ballX");
-        log(ballY, "ballY");
+        //log(ballX, "ballX");
+        //log(ballY, "ballY");
 
-        speed = 5;
+        speed = 10;
         //create new random vector to begin game
         Random r = new Random();
 
         locationVectorX = 0 + r.nextDouble() * (size.x - 0);
-        locationVectorY = 0 + r.nextDouble() * (size.y - 0);
-        //locationVectorY = 0;
+        //locationVectorY = 0 + r.nextDouble() * (size.y - 0);//-----------------------------------
+        locationVectorY = 0;
 
-
+        brickField = activity.findViewById(R.id.brickField);
 
         calcVector();
 
-        log(locationVectorX, "location vector X");
-        log(locationVectorY,"location vector Y");
+        //log(locationVectorX, "location vector X");
+        //log(locationVectorY,"location vector Y");
 
         return true;
     }
@@ -98,11 +112,12 @@ public class BallClass {
         BigDecimal tempBallX;
         BigDecimal tempBallY;
 
-        //if(ballX != 0 && ballY != 0) {
+
+        if(ballX > 0 && ballX+ballPicture.getWidth()<displayWidth && ballY > 0 && ballY+5*ballPicture.getHeight() < displayHeight) {
             double vectorFunction = (locationVectorY / locationVectorX);
             double deltax, deltay;
             deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
-            deltay = speed / deltax;
+            deltay = Math.sqrt(speed*speed - deltax*deltax);
 
             if(_isBallMovementUp)
                 ballY = (double)ballY - deltay;
@@ -114,26 +129,19 @@ public class BallClass {
             else
                 ballX = (double)ballX + deltax;
 
-            log(ballX, "ballX");
-            log(ballY,  "ballY");
-
             tempBallX =  new BigDecimal(ballX);
             tempBallY = new BigDecimal(ballY);
-            //log("-----------");
-            //log(tempBallX);
-            //log(tempBallY);
 
             ballXFloat = tempBallX.floatValue();
             ballYFloat = tempBallY.floatValue();
-            log("-----------");
-            log(ballXFloat, "ballX float");
-            log(ballYFloat, "ballY float");
 
-            ballPicture.setX(ballXFloat);
-            ballPicture.setY(ballYFloat);
-        //}
-        //log(ballXFloat);
-        //log(ballYFloat);
+            checkBrickCollision();
+            if(!isBrickCollision) {
+                ballPicture.setX(ballXFloat);
+                ballPicture.setY(ballYFloat);
+            }
+            else log("true");
+        }
     }
 
     public void calcVector()
@@ -154,6 +162,36 @@ public class BallClass {
         //log(ballY);
     }
 
+    public void checkBrickCollision()
+    {
+        brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
+        int brickCount = brickField.getChildCount();
+
+        int brickX, brickY, brickWidth, brickHeight;
+
+        for(int i=0; i < brickCount; i++) {
+            View brick = brickField.getChildAt(i);
+
+            brickX = (int) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
+            brickY = (int) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
+            brickWidth = brick.getWidth();
+            brickHeight = brick.getHeight();
+
+            //check if ball collides with top
+            if(ballX>=brickX && ballX<=brickX + brickWidth && ballY>=brickY && ballY<=brickY + brickHeight ) {
+                isBrickCollision = true;
+                log("crash 1");
+                //brickField.removeView(brick);
+                brickField.removeViewInLayout(brick);
+                log("crash 2");
+                //log(brickX, "brick " + i + " x = ");
+                //log(brickY, "brick " + i + " y = ");
+                break;
+            }
+
+        }
+    }
+
     public void log(String x)
     {
         String msg = "kon to = " + x;
@@ -169,7 +207,7 @@ public class BallClass {
 
     public void log(double x, String s)
     {
-        String msg = "kon to = " + x + " " + s;
+        String msg = s + x;
         Logger log = Logger.getLogger("{Zdarowa}");
         log.log(Level.INFO,msg);
     }
