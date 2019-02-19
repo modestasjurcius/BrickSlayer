@@ -45,6 +45,7 @@ public class BallClass {
     private double speed;
     private double previousBallX;
     private double previousBallY;
+    private double deltax, deltay;
 
     //booleans
     private boolean _isBallMovementUp;
@@ -89,10 +90,7 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        //log(ballX, "ballX");
-        //log(ballY, "ballY");
-
-        speed = 10;
+        speed = 40;
         //create new random vector to begin game
         calcVector();
 
@@ -109,15 +107,23 @@ public class BallClass {
     public void moveBall()
     {
             calcBallXY();
-
-            if(!isBrickCollision)
             checkBrickCollision();
 
             if(!isBrickCollision) {
                 setBallXY();
             }
             else {
-                //setBallXYNearBrick();
+                if(_isBallMovementUp) {
+                    _isBallMovementUp=false;
+                    calcBallXY();
+                    setBallXY();
+                }
+                else {
+                    _isBallMovementUp=true;
+                    calcBallXY();
+                    setBallXY();
+                }
+                isBrickCollision=false;
             }
 
 
@@ -136,10 +142,6 @@ public class BallClass {
 
         ballPicture.setX(ballXFloat);
         ballPicture.setY(ballYFloat);
-
-        log(ballX,"ball X = ");
-        log(ballY, "ball Y = ");
-        log(vectorFunction, "vector function = ");
     }
 
     public void calcBallXY()
@@ -147,11 +149,22 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        if(ballX > 0 && ballX+ballPicture.getWidth()<displayWidth && ballY > 0 && ballY+5*ballPicture.getHeight() < displayHeight) {
-            double deltax, deltay;
-
-            deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
-            deltay = Math.sqrt(speed * speed - deltax * deltax);
+        if(ballX <= 0)
+        {
+            _isBallMovementLeft=false;
+        }
+        if (ballY <= 0)
+        {
+            _isBallMovementUp=false;
+        }
+        if (ballX+ballPicture.getWidth() >= displayWidth)
+        {
+            _isBallMovementLeft=true;
+        }
+        if(ballY+ballPicture.getHeight() >= displayHeight - 60)
+        {
+            _isBallMovementUp=true;
+        }
 
             previousBallX = ballPicture.getX();
             previousBallY = ballPicture.getY();
@@ -160,14 +173,10 @@ public class BallClass {
                 ballY = (double) ballY - deltay;
             else
                 ballY = (double) ballY + deltay;
-
             if (_isBallMovementLeft)
                 ballX = (double) ballX - deltax;
             else
                 ballX = (double) ballX + deltax;
-
-
-        }
     }
 
     public void calcBallXYNearBrick(int brickId)
@@ -182,13 +191,6 @@ public class BallClass {
 
         brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
         brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
-
-        log(brickX + brickWidth,"brick X (right) = ");
-        log(brickY + brickHeight,"brick Y (lower) = ");
-        log(locationVectorX/locationVectorY, "VECTOR REVERSE = ");
-
-        log(ballX, " BALL X = ");
-        log(previousBallX, "PREVIOUS  BALL X = ");
 
         //interpoliaciniu daugianario metodu :
         ballY = brickY + brickHeight;
@@ -224,6 +226,9 @@ public class BallClass {
         locationVectorX = (double) (locationVectorX - ballX);
         locationVectorY = (double) (locationVectorY - ballY);
         vectorFunction = (locationVectorY / locationVectorX);
+
+        deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
+        deltay = Math.sqrt(speed * speed - deltax * deltax);
         //log(ballX);
         //log(ballY);
     }
@@ -244,19 +249,30 @@ public class BallClass {
             brickWidth = brick.getWidth();
             brickHeight = brick.getHeight();
 
-            //check if ball collides with top
+            //check if brick collides with top left ball corner
             if(ballX>=brickX && ballX<=brickX + brickWidth && ballY>=brickY && ballY<=brickY + brickHeight ) {
                 isBrickCollision = true;
-                log(ballX, "COLISION ball X = ");
-                log(ballY, "COLISION ball Y = ");
                 calcBallXYNearBrick(i);
                 brickField.removeViewInLayout(brick);
-                //ballPicture.setY((float) (brickY + brickHeight));
-                //ballPicture.setX((float) ( (brickY + brickHeight) * locationVectorX / locationVectorY));
                 break;
             }
+            //check if brick collides with top right ball corner
 
         }
+    }
+
+    public void checkPaddleCollision ()
+    {
+
+    }
+
+    public void calcAngle(double p1x, double p1y, double p2x, double p2y, double fpx, double fpy)
+    {
+        double angle1 = Math.atan2(p1y - fpy, p1x - fpx);
+        double angle2 = Math.atan2(p2y - fpy, p2x - p2x);
+
+        double realAngle = Math.toDegrees(angle1 - angle2);
+        log(realAngle, "DA ANGLE BETWEEN POINTZZZZZ ======= ");
     }
 
     public void log(String x)
