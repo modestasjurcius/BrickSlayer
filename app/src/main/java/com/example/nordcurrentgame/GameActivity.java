@@ -88,7 +88,7 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 playerBall.moveBall();
             }
-        },2000,50);
+        },0,20);
     }
 
 

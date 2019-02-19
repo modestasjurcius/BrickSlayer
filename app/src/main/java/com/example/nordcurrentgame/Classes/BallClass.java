@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.Math.PI;
+
 public class BallClass {
     //ImageViews
     private ImageView ballPicture;
@@ -90,16 +92,11 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        speed = 40;
+        speed = 10;
         //create new random vector to begin game
         calcVector();
 
         brickField = activity.findViewById(R.id.brickField);
-
-
-
-        //log(locationVectorX, "location vector X");
-        //log(locationVectorY,"location vector Y");
 
         return true;
     }
@@ -107,22 +104,17 @@ public class BallClass {
     public void moveBall()
     {
             calcBallXY();
+
             checkBrickCollision();
+            checkPaddleCollision();
 
             if(!isBrickCollision) {
                 setBallXY();
             }
             else {
-                if(_isBallMovementUp) {
-                    _isBallMovementUp=false;
                     calcBallXY();
                     setBallXY();
-                }
-                else {
-                    _isBallMovementUp=true;
-                    calcBallXY();
-                    setBallXY();
-                }
+
                 isBrickCollision=false;
             }
 
@@ -149,6 +141,9 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
+        previousBallX = ballX;
+        previousBallX = ballY;
+
         if(ballX <= 0)
         {
             _isBallMovementLeft=false;
@@ -161,7 +156,7 @@ public class BallClass {
         {
             _isBallMovementLeft=true;
         }
-        if(ballY+ballPicture.getHeight() >= displayHeight - 60)
+        if(ballY+ballPicture.getHeight() >= displayHeight - 140)
         {
             _isBallMovementUp=true;
         }
@@ -194,7 +189,7 @@ public class BallClass {
 
         //interpoliaciniu daugianario metodu :
         ballY = brickY + brickHeight;
-        ballX = (ballY-(vectorFunction*-1*previousBallX+previousBallY))/vectorFunction;
+        ballX = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
 
 
 
@@ -205,7 +200,6 @@ public class BallClass {
     {
         Random r = new Random();
         locationVectorX = 0 + r.nextDouble() * (displayWidth - 0);
-        //locationVectorY = 0 + r.nextDouble() * (size.y - 0);//-----------------------------------
         locationVectorY = 0;
 
         if(locationVectorX>displayWidth)
@@ -233,12 +227,30 @@ public class BallClass {
         //log(ballY);
     }
 
+    public void calcVector(double x, double y)
+    {
+        locationVectorX = x;
+        locationVectorY = y;
+
+        locationVectorX = (double) (locationVectorX - ballX);
+        locationVectorY = (double) (locationVectorY - ballY);
+
+        vectorFunction = (locationVectorY / locationVectorX);
+
+        deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
+        deltay = Math.sqrt(speed * speed - deltax * deltax);
+    }
+
     public void checkBrickCollision()
     {
         brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
         int brickCount = brickField.getChildCount();
 
         double brickX, brickY, brickWidth, brickHeight;
+        double ballWidth, ballHeight;
+
+        ballWidth = ballPicture.getWidth();
+        ballHeight = ballPicture.getHeight();
 
         for(int i=0; i < brickCount; i++) {
             View brick = brickField.getChildAt(i);
@@ -250,20 +262,121 @@ public class BallClass {
             brickHeight = brick.getHeight();
 
             //check if brick collides with top left ball corner
-            if(ballX>=brickX && ballX<=brickX + brickWidth && ballY>=brickY && ballY<=brickY + brickHeight ) {
-                isBrickCollision = true;
-                calcBallXYNearBrick(i);
-                brickField.removeViewInLayout(brick);
-                break;
+            if(_isBallMovementUp) {
+                if (ballX >= brickX && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+                    isBrickCollision = true;
+                    _isBallMovementUp=false;
+                    calcBallXYNearBrick(i);
+                    brickField.removeViewInLayout(brick);
+                    //log(ballX, "COLLISION TIME ball X = ");
+                    //log(ballY, "COLLISION TIME ball Y = ");
+                    //log("-----------------------");
+                    //log(brickX, "COLLISION TIME brick X = ");
+                    //log(brickY, "COLLISION TIME brick Y = ");
+                    break;
+                }
+
+                if (ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+                    isBrickCollision = true;
+                    _isBallMovementUp=false;
+                    calcBallXYNearBrick(i);
+                    brickField.removeViewInLayout(brick);
+                    break;
+                }
             }
-            //check if brick collides with top right ball corner
+                else // BALL MOVEMENT IS DOWN
+                {
+                    if (ballX >= brickX && ballX <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight){
+                        isBrickCollision = true;
+                        _isBallMovementUp=true;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                    if (ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight) {
+                        isBrickCollision = true;
+                        _isBallMovementUp=true;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                }
+
+                if(_isBallMovementLeft) {
+                    if(ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=false;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                    if(ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=false;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                }
+                else {
+                    if(ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=true;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                    if(ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=true;
+                        calcBallXYNearBrick(i);
+                        brickField.removeViewInLayout(brick);
+                        break;
+                    }
+                }
 
         }
     }
 
     public void checkPaddleCollision ()
     {
+        double paddleX, paddleY, paddleWidth, paddleHeight;
+        double MAXBOUNCEANGLE = 5*PI/12;
 
+        paddleX = paddlePicture.getX();
+        paddleY = paddlePicture.getY();
+        paddleWidth = paddlePicture.getWidth();
+        paddleHeight = paddlePicture.getHeight();
+
+                if(ballX >= paddleX && ballX + ballPicture.getWidth() <= paddleX + paddleWidth && ballY+ballPicture.getWidth() >= paddleY && !_isBallMovementUp) {
+
+                    ballY = paddleY - ballPicture.getHeight();
+                    ballX = (ballY-(vectorFunction*-1*previousBallX+previousBallY))/vectorFunction;
+
+                    setBallXY();
+
+                    double relativeIntersectX = (paddleX + (paddleWidth/2)) - (ballX + (ballPicture.getWidth()/2));
+                    double normalizedRelativeIntersectionX = relativeIntersectX / (paddleWidth/2);
+                    double bounceAngle = normalizedRelativeIntersectionX * MAXBOUNCEANGLE;
+
+                    locationVectorX = speed * -Math.sin(bounceAngle);
+                    locationVectorY = speed * Math.cos(bounceAngle);
+
+                    deltax = ballX + locationVectorX;
+                    deltay = ballY - locationVectorY;
+
+                    if(normalizedRelativeIntersectionX > 0)
+                        _isBallMovementLeft=true;
+                    else
+                        _isBallMovementLeft=false;
+
+                    calcVector(ballX + locationVectorX, ballY + locationVectorY);
+                    log(locationVectorX,"location vector X == ");
+                    log(locationVectorY,"location vector Y == ");
+                    log("------------");
+
+                    _isBallMovementUp=true;
+                }
     }
 
     public void calcAngle(double p1x, double p1y, double p2x, double p2y, double fpx, double fpy)
