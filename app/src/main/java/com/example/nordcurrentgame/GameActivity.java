@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.Handler;
+import android.os.Message;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,9 +21,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.nordcurrentgame.Classes.BallClass;
 import com.example.nordcurrentgame.Classes.BrickClass;
+import com.example.nordcurrentgame.Classes.SettingsClass;
 
 import java.io.File;
 import java.util.Timer;
@@ -36,6 +40,9 @@ public class GameActivity extends AppCompatActivity {
     //Imageviews
     public ImageView playerPaddle;
 
+    //TextViews
+    public TextView scoreTextView;
+
     //layouts
     public ConstraintLayout container;
 
@@ -45,6 +52,12 @@ public class GameActivity extends AppCompatActivity {
     //class objects
     public BrickClass brick;
     public BallClass playerBall;
+    public SettingsClass settings;
+
+    //ints
+    public int score;
+
+    //public Handler mHandler;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -56,7 +69,7 @@ public class GameActivity extends AppCompatActivity {
         playerPaddle = (ImageView) findViewById(R.id.paddle);
         container = (ConstraintLayout) findViewById(R.id.container);
 
-
+        score = 0;
         playerPaddle.setX(0);
 
         container.setOnTouchListener(new View.OnTouchListener() {
@@ -80,16 +93,38 @@ public class GameActivity extends AppCompatActivity {
         });
 
         playerBall = new BallClass(this);
+        settings = new SettingsClass();
+        scoreTextView = findViewById(R.id.scoreTextView);
+        scoreTextView.setText("Score : " + score);
 
         //Start ball timer
         ballTimer = new Timer();
         ballTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                playerBall.moveBall();
+                TimerMethod();
+
+
             }
         },0,20);
     }
+
+    private void TimerMethod()
+    {
+        if(playerBall.moveBall(this)) {
+            score += settings.gamePoints;
+            runOnUiThread(ChangeScoreText);
+        }
+    }
+
+    private Runnable ChangeScoreText = new Runnable() {
+        @Override
+        public void run() {
+            //score += settings.gamePoints;
+            scoreTextView.setText("Score : " + score);
+        }
+    };
+
 
 
 

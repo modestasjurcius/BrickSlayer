@@ -3,6 +3,7 @@ package com.example.nordcurrentgame.Classes;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -17,12 +18,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.nordcurrentgame.GameActivity;
 import com.example.nordcurrentgame.R;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +38,7 @@ public class BallClass {
     //ImageViews
     private ImageView ballPicture;
     private ImageView paddlePicture;
+    private TextView scoreTextView;
 
     //floats
     private float ballXFloat;
@@ -57,9 +63,14 @@ public class BallClass {
     //ints
     private int displayWidth;
     private int displayHeight;
+    public int score;
 
     //layouts
     private GridLayout brickField;
+    public LinearLayout hudContainer;
+
+    //lists
+    private List<Float> bricksCoords;
 
     //params
     public ViewGroup.MarginLayoutParams brickFieldParams;
@@ -67,6 +78,7 @@ public class BallClass {
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
+        bricksCoords = new ArrayList<Float>();
     }
 
     public Boolean initializeGameBall(GameActivity activity)
@@ -98,11 +110,18 @@ public class BallClass {
 
         brickField = activity.findViewById(R.id.brickField);
 
+
+
         return true;
     }
 
-    public void moveBall()
+    public Boolean moveBall(GameActivity activity)
     {
+        if(!bricksCoords.isEmpty())
+            setBricksByCoords();
+        //createScore(activity);
+        //manageScore(activity);
+
             calcBallXY();
 
             checkBrickCollision();
@@ -110,15 +129,71 @@ public class BallClass {
 
             if(!isBrickCollision) {
                 setBallXY();
+                return false;
             }
             else {
+                score += 10;
+                //manageScore(activity);
                     calcBallXY();
                     setBallXY();
 
                 isBrickCollision=false;
+
+                calculateBricksCoords();
+                return true;
             }
 
 
+    }
+
+    public void calculateBricksCoords() {
+        int brickCount = brickField.getChildCount();
+
+        for(int i=0; i<brickCount; i++)
+        {
+            View brick = brickField.getChildAt(i);
+
+            bricksCoords.add(brick.getX());
+            bricksCoords.add(brick.getY());
+
+            log("CALCULATE brick " + i + " X == " + brick.getX());
+            log("CALCULATE brick " + i + " Y == " + brick.getY());
+            log("--------------------------");
+        }
+    }
+
+    public void setBricksByCoords()
+    {
+        int brickCount = brickField.getChildCount();
+        int x=0;
+
+        for(int i=0; i<brickCount; i++)
+        {
+            View brick = brickField.getChildAt(i);
+
+            brick.setX(bricksCoords.get(x));
+            x++;
+            brick.setY(bricksCoords.get(x));
+            x++;
+            log("SET brick " + i + " X == " + brick.getX());
+            log("SET brick " + i + " Y == " + brick.getY());
+            log("--------------------------");
+        }
+        bricksCoords.clear();
+    }
+
+    public void createScore(GameActivity activity)
+    {
+        scoreTextView = new TextView(activity);
+        scoreTextView.setText("");
+        scoreTextView.setX(8);
+        scoreTextView.setY(8);
+        activity.container.addView(scoreTextView);
+    }
+
+    public void manageScore(GameActivity activity)
+    {
+        scoreTextView.setText("Score : " + score);
     }
 
     public void setBallXY ()
@@ -283,6 +358,7 @@ public class BallClass {
             return false;
 
     }
+
     public Boolean checkBrickCollisionTop(int brickId)
     {
         View brick = brickField.getChildAt(brickId);
@@ -303,35 +379,6 @@ public class BallClass {
         tempBallY2 = vectorFunction * tempBallX2 +(previousBallY + vectorFunction * -1 * previousBallX);
 
         if((tempBallY1 < brickY || tempBallY2 < brickY) && previousBallY < brickY && !_isBallMovementUp)
-            return true;
-
-        else
-            return false;
-    }
-
-    public Boolean checkBrickCollisionRight(int brickId)
-    {
-        View brick = brickField.getChildAt(brickId);
-
-        double brickX, brickY, brickWidth, brickHeight;
-        double tempBallX1 ,tempBallX2, tempBallY1, tempBallY2;
-
-        brickWidth = brick.getWidth();
-        brickHeight = brick.getHeight();
-
-        brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
-        brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
-
-        tempBallY1 = brickY + brickHeight;
-        tempBallX1 = (tempBallY1-(vectorFunction*-1*ballX+tempBallY1))/vectorFunction;
-
-        tempBallY2 = brickY;
-        tempBallX1 = (tempBallY2-(vectorFunction*-1*ballX+tempBallY1))/vectorFunction;
-
-        ballY = brickY + brickHeight;
-        ballX = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
-
-        if(tempBallY1 < brickY || tempBallY2 < brickY)
             return true;
 
         else
