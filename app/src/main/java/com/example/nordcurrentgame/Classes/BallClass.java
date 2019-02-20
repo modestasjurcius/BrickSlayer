@@ -23,6 +23,7 @@ import com.example.nordcurrentgame.R;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +65,10 @@ public class BallClass {
     //params
     public ViewGroup.MarginLayoutParams brickFieldParams;
 
+    //lists
+    List<Float> bricksCoordsX;
+    List<Float> bricksCoordsY;
+
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
@@ -95,8 +100,6 @@ public class BallClass {
         speed = 10;
         //create new random vector to begin game
         calcVector();
-
-        brickField = activity.findViewById(R.id.brickField);
 
         return true;
     }

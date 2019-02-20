@@ -24,6 +24,7 @@ import com.example.nordcurrentgame.Classes.BallClass;
 import com.example.nordcurrentgame.Classes.BrickClass;
 
 import java.io.File;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -45,6 +46,10 @@ public class GameActivity extends AppCompatActivity {
     //class objects
     public BrickClass brick;
     public BallClass playerBall;
+
+    //lists
+    public List<Float> bricksCoordsX;
+    public List<Float> bricksCoordsY;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
