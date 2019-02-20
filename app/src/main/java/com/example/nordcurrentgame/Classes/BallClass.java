@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.Display;
@@ -66,7 +67,7 @@ public class BallClass {
     public int score;
 
     //layouts
-    private GridLayout brickField;
+    private ConstraintLayout brickField;
     public LinearLayout hudContainer;
 
     //lists

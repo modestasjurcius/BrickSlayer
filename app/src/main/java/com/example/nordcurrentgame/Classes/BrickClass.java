@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -43,11 +44,9 @@ public class BrickClass {
 
     public Boolean setBrickWall(GameActivity activity)
     {
-        GridLayout brickField = (GridLayout) activity.findViewById(R.id.brickField);
-        brickField.setColumnCount(6);
-        brickField.setRowCount(4);
+        ConstraintLayout brickField = (ConstraintLayout) activity.findViewById(R.id.brickField);
+        ConstraintSet set = new ConstraintSet();
         brickField.removeAllViews();
-        brickField.getUseDefaultMargins();
 
         Display display = activity.getWindowManager().getDefaultDisplay();
 
@@ -62,7 +61,9 @@ public class BrickClass {
             brickPicture.setScaleType(ImageView.ScaleType.FIT_XY);
             brickPicture.setLayoutParams(new android.view.ViewGroup.LayoutParams(width / 6,50));
 
+            set.clone(brickField);
             brickField.addView(brickPicture, i);
+            //set.connect();
             brickCount=i+1;
         }
         _isBrickWall = true;
