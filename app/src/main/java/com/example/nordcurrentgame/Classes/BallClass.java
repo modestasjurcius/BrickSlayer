@@ -214,15 +214,6 @@ public class BallClass {
         //interpoliaciniu daugianario metodu :
         ballY = brickY - ballPicture.getHeight();
         ballX = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
-
-        log(previousBallX, "Previous Ball X = ");
-        log(previousBallY, "Previous Ball Y = ");
-        log(ballX, "ball X = ");
-        log(ballY, "ball Y = ");
-        log(brickY, "brick Y = ");
-        log(vectorFunction, "v funkcija = ");
-        log(ballPicture.getHeight(), "ball height ==== ");
-
         setBallXY();
     }
 
