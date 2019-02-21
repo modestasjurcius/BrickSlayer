@@ -32,7 +32,7 @@
         app:srcCompat="@drawable/ball"
         tools:ignore="MissingConstraints" />
 
-    <android.support.constraint.ConstraintLayout
+    <GridLayout
         android:id="@+id/brickField"
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -53,10 +53,30 @@
 
     <TextView
         android:id="@+id/scoreTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
         app:layout_constraintStart_toEndOf="@+id/gameBall"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/livesTextView"
+        android:layout_width="40dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="70dp"
+        android:text="Lives :"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <GridLayout
+        android:id="@+id/livesLayout"
+        android:layout_width="60dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:rowCount="1"
+        android:columnCount="3"
+        app:layout_constraintStart_toEndOf="@+id/livesTextView"
+        app:layout_constraintTop_toTopOf="parent"></GridLayout>
 
 
 </android.support.constraint.ConstraintLayout>

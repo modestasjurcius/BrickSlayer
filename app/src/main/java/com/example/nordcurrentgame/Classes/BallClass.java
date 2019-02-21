@@ -16,6 +16,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -60,18 +61,19 @@ public class BallClass {
     private boolean _isBallMovementUp;
     private boolean _isBallMovementLeft;
     private boolean isBrickCollision;
+    public boolean isRemoveLife;
 
     //ints
     private int displayWidth;
     private int displayHeight;
-    public int score;
 
     //layouts
-    private ConstraintLayout brickField;
+    private GridLayout brickField;
     public LinearLayout hudContainer;
 
     //lists
     private List<Float> bricksCoords;
+    private List<Integer> goneBricksIDS;
 
     //params
     public ViewGroup.MarginLayoutParams brickFieldParams;
@@ -79,7 +81,7 @@ public class BallClass {
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
-        bricksCoords = new ArrayList<Float>();
+        goneBricksIDS = new ArrayList<Integer>();
     }
 
     public Boolean initializeGameBall(GameActivity activity)
@@ -88,6 +90,7 @@ public class BallClass {
         paddlePicture.measure(paddlePicture.getMeasuredWidth(),paddlePicture.getMeasuredHeight());
 
         isBrickCollision = false;
+        isRemoveLife = false;
 
         Display display = activity.getWindowManager().getDefaultDisplay();
 
@@ -116,32 +119,24 @@ public class BallClass {
         return true;
     }
 
-    public Boolean moveBall(GameActivity activity)
+    public int moveBall()
     {
-        if(!bricksCoords.isEmpty())
-            setBricksByCoords();
-        //createScore(activity);
-        //manageScore(activity);
-
+            int x;
             calcBallXY();
 
-            checkBrickCollision();
+            x=checkBrickCollision();
             checkPaddleCollision();
 
             if(!isBrickCollision) {
                 setBallXY();
-                return false;
+                return -1;
             }
             else {
-                score += 10;
-                //manageScore(activity);
                     calcBallXY();
                     setBallXY();
 
                 isBrickCollision=false;
-
-                calculateBricksCoords();
-                return true;
+                return x;
             }
 
 
@@ -183,20 +178,6 @@ public class BallClass {
         bricksCoords.clear();
     }
 
-    public void createScore(GameActivity activity)
-    {
-        scoreTextView = new TextView(activity);
-        scoreTextView.setText("");
-        scoreTextView.setX(8);
-        scoreTextView.setY(8);
-        activity.container.addView(scoreTextView);
-    }
-
-    public void manageScore(GameActivity activity)
-    {
-        scoreTextView.setText("Score : " + score);
-    }
-
     public void setBallXY ()
     {
         BigDecimal tempBallX;
@@ -234,7 +215,9 @@ public class BallClass {
         }
         if(ballY+ballPicture.getHeight() >= displayHeight - 140)
         {
+            log("DABAAAAAAR ERGI SEP");
             _isBallMovementUp=true;
+            isRemoveLife=true;
         }
 
             previousBallX = ballPicture.getX();
@@ -309,7 +292,6 @@ public class BallClass {
         //interpoliaciniu daugianario metodu :
         ballX = brickX - ballPicture.getWidth();
         ballY = vectorFunction * ballX +(previousBallY + vectorFunction * -1 * previousBallX);
-        //ballY = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
         setBallXY();
     }
 
@@ -431,7 +413,7 @@ public class BallClass {
         deltay = Math.sqrt(speed * speed - deltax * deltax);
     }
 
-    public void checkBrickCollision()
+    public int checkBrickCollision()
     {
         brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
         int brickCount = brickField.getChildCount();
@@ -441,8 +423,20 @@ public class BallClass {
 
         ballWidth = ballPicture.getWidth();
         ballHeight = ballPicture.getHeight();
+        int i=0;
+        for(i=0; i < brickCount; i++) {
+            boolean isBreak = false;
+            for(int j=0; j<goneBricksIDS.size(); j++)
+            {
+                if (i == goneBricksIDS.get(j))
+                {
+                    isBreak = true;
+                    break;
+                }
+            }
 
-        for(int i=0; i < brickCount; i++) {
+            if(isBreak)
+                break;
             View brick = brickField.getChildAt(i);
 
             brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
@@ -461,11 +455,6 @@ public class BallClass {
                         _isBallMovementUp=false;
                         break;
                     }
-                    //log(ballX, "COLLISION TIME ball X = ");
-                    //log(ballY, "COLLISION TIME ball Y = ");
-                    //log("-----------------------");
-                    //log(brickX, "COLLISION TIME brick X = ");
-                    //log(brickY, "COLLISION TIME brick Y = ");
                 }
 
                 if (ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
@@ -535,6 +524,7 @@ public class BallClass {
                 }
 
         }
+        return i;
     }
 
     public void checkPaddleCollision ()
