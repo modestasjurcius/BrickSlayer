@@ -151,6 +151,22 @@ public class GameActivity extends AppCompatActivity {
     private void TimerMethod()
     {
         int x = playerBall.moveBall();
+        if(playerBall.isRemoveLife){
+            log("---------------- NOW");
+
+            if(lives == 3) {
+                livesLayout.removeViewInLayout(lifeImageView3);
+                //((ViewManager)livesLayout.getParent()).removeView(lifeImageView);
+                lives -= 1;
+            }
+
+            else if(lives == 2) {
+                livesLayout.removeViewInLayout(lifeImageView2);
+                lives -= 1;
+            }
+            else isGameOver = true;
+            playerBall.isRemoveLife=false;
+        }
         if(x >= 0) {
             score += settings.gamePoints;
             runOnUiThread(ChangeScoreText);
@@ -165,20 +181,8 @@ public class GameActivity extends AppCompatActivity {
             //score += settings.gamePoints;
             scoreTextView.setText("Score : " + score);
             scoreTextView.invalidate();
-            if(playerBall.isRemoveLife){
-                if(lives == 3) {
-                    livesLayout.removeViewInLayout(lifeImageView3);
-                    //((ViewManager)livesLayout.getParent()).removeView(lifeImageView);
-                    lives -= 1;
-                }
 
-                else if(lives == 2) {
-                    livesLayout.removeViewInLayout(lifeImageView2);
-                    lives -= 1;
-                }
-                else isGameOver = true;
-                playerBall.isRemoveLife=false;
-            }
+
             //View brick = brickField.getChildAt(x);
             //tempImg.setImageResource(R.drawable.ball);
             //brickField.removeViewInLayout(brick);

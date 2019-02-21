@@ -66,6 +66,7 @@ public class BallClass {
     //ints
     private int displayWidth;
     private int displayHeight;
+    private int ballCollisionCount;
 
     //layouts
     private GridLayout brickField;
@@ -109,6 +110,7 @@ public class BallClass {
         ballY = ballPicture.getY();
 
         speed = 10;
+        ballCollisionCount = 0;
         //create new random vector to begin game
         calcVector();
 
@@ -121,6 +123,11 @@ public class BallClass {
 
     public int moveBall()
     {
+        if(ballCollisionCount==5)
+        {
+            speed += 2;
+            ballCollisionCount = 0;
+        }
             int x;
             calcBallXY();
 
@@ -134,6 +141,7 @@ public class BallClass {
             else {
                     calcBallXY();
                     setBallXY();
+                    ballCollisionCount++;
 
                 isBrickCollision=false;
                 return x;
@@ -204,20 +212,23 @@ public class BallClass {
         if(ballX <= 0)
         {
             _isBallMovementLeft=false;
+            ballCollisionCount++;
         }
         if (ballY <= 0)
         {
             _isBallMovementUp=false;
+            ballCollisionCount++;
         }
         if (ballX+ballPicture.getWidth() >= displayWidth)
         {
             _isBallMovementLeft=true;
+            ballCollisionCount++;
         }
         if(ballY+ballPicture.getHeight() >= displayHeight - 140)
         {
-            log("DABAAAAAAR ERGI SEP");
             _isBallMovementUp=true;
             isRemoveLife=true;
+            ballCollisionCount++;
         }
 
             previousBallX = ballPicture.getX();
