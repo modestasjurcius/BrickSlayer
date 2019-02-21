@@ -19,14 +19,10 @@ public class BrickClass {
     //imageviews
     public ImageView brickPicture;
 
-    //booleans
-    private Boolean _isBrickWall;
-
     //ints
     public int brickCount;
 
     public BrickClass(GameActivity activity) {
-        _isBrickWall=false;
         setBrickWall(activity);
     }
 
@@ -54,7 +50,6 @@ public class BrickClass {
             brickField.addView(brickPicture, i);
             brickCount=i+1;
         }
-        _isBrickWall = true;
         return true;
     }
 }

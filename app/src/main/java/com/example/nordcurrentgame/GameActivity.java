@@ -2,42 +2,22 @@ package com.example.nordcurrentgame;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.os.Handler;
-import android.os.Message;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.view.View;
 import android.widget.TextView;
 
 import com.example.nordcurrentgame.Classes.BallClass;
 import com.example.nordcurrentgame.Classes.BrickClass;
 
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.lang.Math.log;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -248,7 +228,7 @@ public class GameActivity extends AppCompatActivity {
             MainActivity.level++;
         }
         else {
-            MainActivity.startBallSpeed = 20;
+            MainActivity.startBallSpeed = 8;
             MainActivity.score = 0;
             MainActivity.lives = 3;
             MainActivity.level = 1;
