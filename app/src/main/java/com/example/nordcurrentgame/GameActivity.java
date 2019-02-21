@@ -84,8 +84,6 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-
-
         brickField = findViewById(R.id.brickField);
 
         lives = 3;
@@ -156,6 +154,9 @@ public class GameActivity extends AppCompatActivity {
         scoreTextView = findViewById(R.id.scoreTextView);
         scoreTextView.setText("Score : " + score);
 
+        //handler for next level activity
+
+
         //Start ball timer
         ballTimer = new Timer();
         ballTimer.schedule(new TimerTask() {
@@ -170,7 +171,7 @@ public class GameActivity extends AppCompatActivity {
 
 
             }
-        },0,20);
+        },0,25);
     }
 
 
@@ -178,8 +179,6 @@ public class GameActivity extends AppCompatActivity {
     {
         int x = playerBall.moveBall();
         if(playerBall.isRemoveLife){
-            log("---------------- NOW");
-
             if(lives == 3) {
                 livesLayout.removeViewInLayout(lifeImageView3);
                 //((ViewManager)livesLayout.getParent()).removeView(lifeImageView);
@@ -197,8 +196,14 @@ public class GameActivity extends AppCompatActivity {
             score += settings.gamePoints;
             runOnUiThread(ChangeScoreText);
         }
-        if(isGameOver)
-        {
+        if (playerBall.isOtherLevel) {
+            ballTimer.cancel();
+            //Intent intent = new Intent(this, GameActivity.class);
+            //intent.putExtra("speed", settings.startBallSpeed);
+            //startActivity(intent);
+            buttonRetryGameClick(container);
+        }
+        if(isGameOver) {
             ballTimer.cancel();
             runOnUiThread(gameOver);
         }
@@ -226,6 +231,7 @@ public class GameActivity extends AppCompatActivity {
     public void buttonRetryGameClick(View view) {
         Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);
+        this.finish();
     }
 
     public void buttonExitGameClick(View view) {

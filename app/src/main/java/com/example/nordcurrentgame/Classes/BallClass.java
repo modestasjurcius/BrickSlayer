@@ -63,6 +63,7 @@ public class BallClass {
     private boolean _isBallMovementLeft;
     private boolean isBrickCollision;
     public boolean isRemoveLife;
+    public boolean isOtherLevel;
 
     //ints
     private int displayWidth;
@@ -101,8 +102,10 @@ public class BallClass {
             log(displayBarHeight, "BAR HEIGHT == ");
         }
 
+        //booleans
         isBrickCollision = false;
         isRemoveLife = false;
+        isOtherLevel = false;
 
         Display display = activity.getWindowManager().getDefaultDisplay();
 
@@ -137,7 +140,6 @@ public class BallClass {
     {
         if(ballCollisionCount==5)
         {
-
             speed += 2;
             ballCollisionCount = 0;
         }
@@ -146,7 +148,10 @@ public class BallClass {
 
             x=checkBrickCollision();
             checkPaddleCollision();
-
+            if(isOtherLevel)
+            {
+                return x;
+            }
             if(!isBrickCollision) {
                 setBallXY();
                 return -1;
@@ -446,6 +451,12 @@ public class BallClass {
     {
         brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
         int brickCount = brickField.getChildCount();
+
+        if(brickCount == 0)
+        {
+               isOtherLevel = true;
+               return -2;
+        }
 
         double brickX, brickY, brickWidth, brickHeight;
         double ballWidth, ballHeight;
