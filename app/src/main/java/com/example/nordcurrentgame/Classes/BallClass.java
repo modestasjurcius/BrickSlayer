@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nordcurrentgame.GameActivity;
+import com.example.nordcurrentgame.MainActivity;
 import com.example.nordcurrentgame.R;
 
 import java.math.BigDecimal;
@@ -53,7 +54,8 @@ public class BallClass {
     private double vectorFunction;
     private double ballX;
     private double ballY;
-    private double speed;
+    public double startSpeed;
+    public double speed;
     private double previousBallX;
     private double previousBallY;
     private double deltax, deltay;
@@ -73,11 +75,6 @@ public class BallClass {
 
     //layouts
     private GridLayout brickField;
-    public LinearLayout hudContainer;
-
-    //lists
-    private List<Float> bricksCoords;
-    private List<Integer> goneBricksIDS;
 
     //params
     public ViewGroup.MarginLayoutParams brickFieldParams;
@@ -87,7 +84,6 @@ public class BallClass {
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
-        goneBricksIDS = new ArrayList<Integer>();
     }
 
     public Boolean initializeGameBall(GameActivity activity)
@@ -124,7 +120,8 @@ public class BallClass {
         ballX = ballPicture.getX();
         ballY = ballPicture.getY();
 
-        speed = 10;
+        speed = MainActivity.startBallSpeed;
+
         ballCollisionCount = 0;
         //create new random vector to begin game
         calcVector();
@@ -166,42 +163,6 @@ public class BallClass {
             }
 
 
-    }
-
-    public void calculateBricksCoords() {
-        int brickCount = brickField.getChildCount();
-
-        for(int i=0; i<brickCount; i++)
-        {
-            View brick = brickField.getChildAt(i);
-
-            bricksCoords.add(brick.getX());
-            bricksCoords.add(brick.getY());
-
-            log("CALCULATE brick " + i + " X == " + brick.getX());
-            log("CALCULATE brick " + i + " Y == " + brick.getY());
-            log("--------------------------");
-        }
-    }
-
-    public void setBricksByCoords()
-    {
-        int brickCount = brickField.getChildCount();
-        int x=0;
-
-        for(int i=0; i<brickCount; i++)
-        {
-            View brick = brickField.getChildAt(i);
-
-            brick.setX(bricksCoords.get(x));
-            x++;
-            brick.setY(bricksCoords.get(x));
-            x++;
-            log("SET brick " + i + " X == " + brick.getX());
-            log("SET brick " + i + " Y == " + brick.getY());
-            log("--------------------------");
-        }
-        bricksCoords.clear();
     }
 
     public void setBallXY ()
@@ -465,18 +426,6 @@ public class BallClass {
         ballHeight = ballPicture.getHeight();
         int i=0;
         for(i=0; i < brickCount; i++) {
-            boolean isBreak = false;
-            for(int j=0; j<goneBricksIDS.size(); j++)
-            {
-                if (i == goneBricksIDS.get(j))
-                {
-                    isBreak = true;
-                    break;
-                }
-            }
-
-            if(isBreak)
-                break;
             View brick = brickField.getChildAt(i);
 
             brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin

@@ -7,10 +7,16 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static int startBallSpeed;
+    public static int score;
+    public static int lives;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startBallSpeed = 10;
+        score = 0;
+        lives = 3;
     }
 
     public void buttonStartGameClick(View view) {

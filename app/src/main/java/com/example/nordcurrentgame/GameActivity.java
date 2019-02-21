@@ -30,7 +30,6 @@ import android.widget.TextView;
 
 import com.example.nordcurrentgame.Classes.BallClass;
 import com.example.nordcurrentgame.Classes.BrickClass;
-import com.example.nordcurrentgame.Classes.SettingsClass;
 
 import java.io.File;
 import java.util.Timer;
@@ -63,20 +62,19 @@ public class GameActivity extends AppCompatActivity {
     //class objects
     public BrickClass brick;
     public BallClass playerBall;
-    public SettingsClass settings;
 
     //booleans
     public boolean isGameOver;
 
     //ints
-    public int score;
-    int lives;
+    int ballSpeed;
 
     //buttons
     public Button buttonRetry;
     public Button buttonExit;
 
-    //public Handler mHandler;
+    //intent for extras
+    Intent previousIntent;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -86,7 +84,6 @@ public class GameActivity extends AppCompatActivity {
 
         brickField = findViewById(R.id.brickField);
 
-        lives = 3;
         isGameOver = false;
 
         lifeImageView1 = new ImageView(this);
@@ -104,12 +101,17 @@ public class GameActivity extends AppCompatActivity {
         livesLayout = findViewById(R.id.livesLayout);
         livesLayout.removeAllViews();
 
+
         lifeImageView1.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
         lifeImageView2.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
         lifeImageView3.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
 
+
+        if(MainActivity.lives > 0)
         livesLayout.addView(lifeImageView1, 0);
+        if(MainActivity.lives > 1)
         livesLayout.addView(lifeImageView2, 1);
+        if(MainActivity.lives > 2)
         livesLayout.addView(lifeImageView3, 2);
 
         gameOverText = findViewById(R.id.gameOverText);
@@ -126,7 +128,6 @@ public class GameActivity extends AppCompatActivity {
         playerPaddle = (ImageView) findViewById(R.id.paddle);
         container = (ConstraintLayout) findViewById(R.id.container);
 
-        score = 0;
         playerPaddle.setX(0);
 
         container.setOnTouchListener(new View.OnTouchListener() {
@@ -150,11 +151,10 @@ public class GameActivity extends AppCompatActivity {
         });
 
         playerBall = new BallClass(this);
-        settings = new SettingsClass();
-        scoreTextView = findViewById(R.id.scoreTextView);
-        scoreTextView.setText("Score : " + score);
+        playerBall.startSpeed = ballSpeed;
 
-        //handler for next level activity
+        scoreTextView = findViewById(R.id.scoreTextView);
+        scoreTextView.setText("Score : " + MainActivity.score);
 
 
         //Start ball timer
@@ -164,14 +164,8 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
 
                 TimerMethod();
-                if(isGameOver) {
-                    //ballTimer.cancel();
-                }
-
-
-
             }
-        },0,25);
+        },0,40);
     }
 
 
@@ -179,28 +173,24 @@ public class GameActivity extends AppCompatActivity {
     {
         int x = playerBall.moveBall();
         if(playerBall.isRemoveLife){
-            if(lives == 3) {
+            if(MainActivity.lives == 3) {
                 livesLayout.removeViewInLayout(lifeImageView3);
-                //((ViewManager)livesLayout.getParent()).removeView(lifeImageView);
-                lives -= 1;
+                MainActivity.lives -= 1;
             }
 
-            else if(lives == 2) {
+            else if(MainActivity.lives == 2) {
                 livesLayout.removeViewInLayout(lifeImageView2);
-                lives -= 1;
+                MainActivity.lives -= 1;
             }
             else isGameOver = true;
             playerBall.isRemoveLife=false;
         }
         if(x >= 0) {
-            score += settings.gamePoints;
+            MainActivity.score += 10;
             runOnUiThread(ChangeScoreText);
         }
         if (playerBall.isOtherLevel) {
             ballTimer.cancel();
-            //Intent intent = new Intent(this, GameActivity.class);
-            //intent.putExtra("speed", settings.startBallSpeed);
-            //startActivity(intent);
             buttonRetryGameClick(container);
         }
         if(isGameOver) {
@@ -213,7 +203,7 @@ public class GameActivity extends AppCompatActivity {
     private Runnable ChangeScoreText = new Runnable() {
         @Override
         public void run() {
-            scoreTextView.setText("Score : " + score);
+            scoreTextView.setText("Score : " + MainActivity.score);
             scoreTextView.invalidate();
         }
     };
@@ -229,7 +219,16 @@ public class GameActivity extends AppCompatActivity {
     };
 
     public void buttonRetryGameClick(View view) {
+
         Intent intent = new Intent(this, GameActivity.class);
+
+        if(playerBall.isOtherLevel) {
+            MainActivity.startBallSpeed += 10;
+        }
+        else
+            MainActivity.startBallSpeed = 10;
+
+
         startActivity(intent);
         this.finish();
     }
