@@ -1,5 +1,6 @@
 package com.example.nordcurrentgame.Classes;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -67,6 +68,7 @@ public class BallClass {
     private int displayWidth;
     private int displayHeight;
     private int ballCollisionCount;
+    public int displayBarHeight;
 
     //layouts
     private GridLayout brickField;
@@ -79,6 +81,8 @@ public class BallClass {
     //params
     public ViewGroup.MarginLayoutParams brickFieldParams;
 
+
+
     public BallClass(GameActivity activity)
     {
         initializeGameBall(activity);
@@ -90,6 +94,13 @@ public class BallClass {
         paddlePicture = (ImageView) activity.findViewById(R.id.paddle);
         paddlePicture.measure(paddlePicture.getMeasuredWidth(),paddlePicture.getMeasuredHeight());
 
+        Resources resources = activity.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            displayBarHeight = resources.getDimensionPixelSize(resourceId);
+            log(displayBarHeight, "BAR HEIGHT == ");
+        }
+
         isBrickCollision = false;
         isRemoveLife = false;
 
@@ -97,6 +108,7 @@ public class BallClass {
 
         Point size = new Point();
         display.getSize(size);
+
 
         displayWidth = size.x;
         displayHeight = size.y;
@@ -125,6 +137,7 @@ public class BallClass {
     {
         if(ballCollisionCount==5)
         {
+
             speed += 2;
             ballCollisionCount = 0;
         }
@@ -221,11 +234,16 @@ public class BallClass {
         }
         if (ballX+ballPicture.getWidth() >= displayWidth)
         {
+
+
+
             _isBallMovementLeft=true;
             ballCollisionCount++;
         }
-        if(ballY+ballPicture.getHeight() >= displayHeight - 140)
+
+        if(ballY >= displayHeight - displayBarHeight - 2 * ballPicture.getHeight())
         {
+
             _isBallMovementUp=true;
             isRemoveLife=true;
             ballCollisionCount++;
