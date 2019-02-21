@@ -50,6 +50,7 @@ public class GameActivity extends AppCompatActivity {
     //TextViews
     public TextView scoreTextView;
     public TextView gameOverText;
+    public TextView levelTextView;
 
     //layouts
     public ConstraintLayout container;
@@ -73,39 +74,66 @@ public class GameActivity extends AppCompatActivity {
     public Button buttonRetry;
     public Button buttonExit;
 
-    //intent for extras
-    Intent previousIntent;
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        brickField = findViewById(R.id.brickField);
-
+        //booleans sets
         isGameOver = false;
 
+        //class objects and sets
+        playerBall = new BallClass(this);
+        playerBall.startSpeed = ballSpeed;
+        brick = new BrickClass(this);
+
+        //ImageView sets
         lifeImageView1 = new ImageView(this);
         lifeImageView1.setImageResource(R.drawable.ball);
         lifeImageView1.setScaleType(ImageView.ScaleType.FIT_XY);
+        lifeImageView1.setPadding(5,0,0,0);
 
         lifeImageView2 = new ImageView(this);
         lifeImageView2.setImageResource(R.drawable.ball);
         lifeImageView2.setScaleType(ImageView.ScaleType.FIT_XY);
+        lifeImageView2.setPadding(5,0,0,0);
 
         lifeImageView3 = new ImageView(this);
         lifeImageView3.setImageResource(R.drawable.ball);
         lifeImageView3.setScaleType(ImageView.ScaleType.FIT_XY);
+        lifeImageView3.setPadding(5,0,0,0);
 
+        lifeImageView1.setLayoutParams(new android.view.ViewGroup.LayoutParams(20,20));
+        lifeImageView2.setLayoutParams(new android.view.ViewGroup.LayoutParams(20,20));
+        lifeImageView3.setLayoutParams(new android.view.ViewGroup.LayoutParams(20,20));
+
+        playerPaddle = findViewById(R.id.paddle);
+        playerPaddle.setX(0);
+
+        //textviews and sets
+        gameOverText = findViewById(R.id.gameOverText);
+        gameOverText.setTextSize(53);
+        gameOverText.setTextColor(Color.RED);
+
+        scoreTextView = findViewById(R.id.scoreTextView);
+        scoreTextView.setText("Score : " + MainActivity.score);
+
+        levelTextView = findViewById(R.id.levelTextView);
+        levelTextView.setText("Level : " + MainActivity.level);
+
+        //buttons
+        buttonRetry=findViewById(R.id.buttonRetry);
+        buttonRetry.setVisibility(View.INVISIBLE);
+
+        buttonExit=findViewById(R.id.buttonExit);
+        buttonExit.setVisibility(View.INVISIBLE);
+
+        //layouts
+        brickField = findViewById(R.id.brickField);
+        container = findViewById(R.id.container);
         livesLayout = findViewById(R.id.livesLayout);
         livesLayout.removeAllViews();
-
-
-        lifeImageView1.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
-        lifeImageView2.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
-        lifeImageView3.setLayoutParams(new android.view.ViewGroup.LayoutParams(15,15));
-
 
         if(MainActivity.lives > 0)
         livesLayout.addView(lifeImageView1, 0);
@@ -114,22 +142,7 @@ public class GameActivity extends AppCompatActivity {
         if(MainActivity.lives > 2)
         livesLayout.addView(lifeImageView3, 2);
 
-        gameOverText = findViewById(R.id.gameOverText);
-        gameOverText.setTextSize(53);
-        gameOverText.setTextColor(Color.RED);
-
-        buttonRetry=findViewById(R.id.buttonRetry);
-        buttonRetry.setVisibility(View.INVISIBLE);
-
-        buttonExit=findViewById(R.id.buttonExit);
-        buttonExit.setVisibility(View.INVISIBLE);
-
-        brick = new BrickClass(this);
-        playerPaddle = (ImageView) findViewById(R.id.paddle);
-        container = (ConstraintLayout) findViewById(R.id.container);
-
-        playerPaddle.setX(0);
-
+        //touch movement
         container.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -150,13 +163,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        playerBall = new BallClass(this);
-        playerBall.startSpeed = ballSpeed;
-
-        scoreTextView = findViewById(R.id.scoreTextView);
-        scoreTextView.setText("Score : " + MainActivity.score);
-
-
         //Start ball timer
         ballTimer = new Timer();
         ballTimer.schedule(new TimerTask() {
@@ -165,14 +171,16 @@ public class GameActivity extends AppCompatActivity {
 
                 TimerMethod();
             }
-        },0,40);
+        },500,30);
     }
 
 
     private void TimerMethod()
     {
-        int x = playerBall.moveBall();
+        playerBall.moveBall();
+
         if(playerBall.isRemoveLife){
+
             if(MainActivity.lives == 3) {
                 livesLayout.removeViewInLayout(lifeImageView3);
                 MainActivity.lives -= 1;
@@ -182,17 +190,25 @@ public class GameActivity extends AppCompatActivity {
                 livesLayout.removeViewInLayout(lifeImageView2);
                 MainActivity.lives -= 1;
             }
-            else isGameOver = true;
+            else {
+                isGameOver = true;
+                livesLayout.removeViewInLayout(lifeImageView1);
+            }
+
             playerBall.isRemoveLife=false;
         }
-        if(x >= 0) {
+
+        if(playerBall.isBrickCollision) {
             MainActivity.score += 10;
+            playerBall.isBrickCollision = false;
             runOnUiThread(ChangeScoreText);
         }
+
         if (playerBall.isOtherLevel) {
             ballTimer.cancel();
             buttonRetryGameClick(container);
         }
+
         if(isGameOver) {
             ballTimer.cancel();
             runOnUiThread(gameOver);
@@ -203,18 +219,23 @@ public class GameActivity extends AppCompatActivity {
     private Runnable ChangeScoreText = new Runnable() {
         @Override
         public void run() {
-            scoreTextView.setText("Score : " + MainActivity.score);
-            scoreTextView.invalidate();
+            runOnUiThread(() -> {
+                scoreTextView.setText("Score : " + MainActivity.score);
+                scoreTextView.invalidate();
+                Thread.currentThread().interrupt();
+            });
         }
     };
 
     private Runnable gameOver = new Runnable() {
         @Override
         public void run() {
-            //brickField.removeAllViews();
-            gameOverText.setText("GAME OVER");
-            buttonRetry.setVisibility(View.VISIBLE);
-            buttonExit.setVisibility(View.VISIBLE);
+            runOnUiThread(() -> {
+                gameOverText.setText("GAME OVER");
+                buttonRetry.setVisibility(View.VISIBLE);
+                buttonExit.setVisibility(View.VISIBLE);
+                return;
+            });
         }
     };
 
@@ -224,9 +245,14 @@ public class GameActivity extends AppCompatActivity {
 
         if(playerBall.isOtherLevel) {
             MainActivity.startBallSpeed += 10;
+            MainActivity.level++;
         }
-        else
-            MainActivity.startBallSpeed = 10;
+        else {
+            MainActivity.startBallSpeed = 20;
+            MainActivity.score = 0;
+            MainActivity.lives = 3;
+            MainActivity.level = 1;
+        }
 
 
         startActivity(intent);
@@ -237,36 +263,5 @@ public class GameActivity extends AppCompatActivity {
         moveTaskToBack(true);
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
-    }
-
-
-
-
-
-
-
-        public void log()
-        {
-            String msg = "kon to-----apaciuo playerPaddle";
-            Logger log = Logger.getLogger("{Zdarowa}");
-            log.log(Level.INFO,msg);
-        }
-    public void log(int x)
-    {
-        String msg = "kon to == " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
-    }
-    public void log(float x)
-    {
-        String msg = "kon to = " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
-    }
-    public void log(String x)
-    {
-        String msg = "kon to == " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
     }
 }

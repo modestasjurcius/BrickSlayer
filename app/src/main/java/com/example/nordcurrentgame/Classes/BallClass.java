@@ -42,7 +42,6 @@ public class BallClass {
     //ImageViews
     private ImageView ballPicture;
     private ImageView paddlePicture;
-    private TextView scoreTextView;
 
     //floats
     private float ballXFloat;
@@ -63,7 +62,7 @@ public class BallClass {
     //booleans
     private boolean _isBallMovementUp;
     private boolean _isBallMovementLeft;
-    private boolean isBrickCollision;
+    public boolean isBrickCollision;
     public boolean isRemoveLife;
     public boolean isOtherLevel;
 
@@ -88,14 +87,13 @@ public class BallClass {
 
     public Boolean initializeGameBall(GameActivity activity)
     {
-        paddlePicture = (ImageView) activity.findViewById(R.id.paddle);
+        paddlePicture = activity.findViewById(R.id.paddle);
         paddlePicture.measure(paddlePicture.getMeasuredWidth(),paddlePicture.getMeasuredHeight());
 
         Resources resources = activity.getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0) {
             displayBarHeight = resources.getDimensionPixelSize(resourceId);
-            log(displayBarHeight, "BAR HEIGHT == ");
         }
 
         //booleans
@@ -103,16 +101,16 @@ public class BallClass {
         isRemoveLife = false;
         isOtherLevel = false;
 
+        //display size
         Display display = activity.getWindowManager().getDefaultDisplay();
-
         Point size = new Point();
         display.getSize(size);
-
 
         displayWidth = size.x;
         displayHeight = size.y;
 
-        ballPicture = (ImageView) activity.findViewById(R.id.gameBall);
+        //balpicture image set
+        ballPicture = activity.findViewById(R.id.gameBall);
         ballPicture.setVisibility(View.VISIBLE);
         ballPicture.setX(displayWidth / 2);
         ballPicture.setY(displayHeight / 2);
@@ -123,46 +121,32 @@ public class BallClass {
         speed = MainActivity.startBallSpeed;
 
         ballCollisionCount = 0;
+
         //create new random vector to begin game
         calcVector();
 
         brickField = activity.findViewById(R.id.brickField);
-
-
-
         return true;
     }
 
-    public int moveBall()
+    public void moveBall()
     {
-        if(ballCollisionCount==5)
-        {
-            speed += 2;
+        if(ballCollisionCount>=6) {
+            speed ++;
             ballCollisionCount = 0;
         }
-            int x;
             calcBallXY();
-
-            x=checkBrickCollision();
+            checkBrickCollision();
             checkPaddleCollision();
-            if(isOtherLevel)
-            {
-                return x;
-            }
-            if(!isBrickCollision) {
+
+            if(!isBrickCollision)
                 setBallXY();
-                return -1;
-            }
+
             else {
                     calcBallXY();
                     setBallXY();
                     ballCollisionCount++;
-
-                isBrickCollision=false;
-                return x;
             }
-
-
     }
 
     public void setBallXY ()
@@ -188,64 +172,55 @@ public class BallClass {
         previousBallX = ballX;
         previousBallX = ballY;
 
-        if(ballX <= 0)
-        {
+        if(ballX <= 0) {
             _isBallMovementLeft=false;
             ballCollisionCount++;
         }
-        if (ballY <= 0)
-        {
+
+        if (ballY <= 0) {
             _isBallMovementUp=false;
             ballCollisionCount++;
         }
-        if (ballX+ballPicture.getWidth() >= displayWidth)
-        {
 
-
-
+        if (ballX+ballPicture.getWidth() >= displayWidth) {
             _isBallMovementLeft=true;
             ballCollisionCount++;
         }
 
-        if(ballY >= displayHeight - displayBarHeight - 2 * ballPicture.getHeight())
-        {
+        if(ballY >= displayHeight - displayBarHeight - 2 * ballPicture.getHeight()) {
 
             _isBallMovementUp=true;
             isRemoveLife=true;
             ballCollisionCount++;
         }
-
             previousBallX = ballPicture.getX();
             previousBallY = ballPicture.getY();
 
             if (_isBallMovementUp)
-                ballY = (double) ballY - deltay;
+                ballY = ballY - deltay;
+
             else
-                ballY = (double) ballY + deltay;
+                ballY = ballY + deltay;
+
             if (_isBallMovementLeft)
-                ballX = (double) ballX - deltax;
+                ballX = ballX - deltax;
+
             else
-                ballX = (double) ballX + deltax;
+                ballX = ballX + deltax;
     }
 
     public void calcBallXYNearBrickBottom(int brickId)
     {
         View brick = brickField.getChildAt(brickId);
 
-        double brickX, brickY, brickWidth, brickHeight;
+        double brickY, brickHeight;
 
-
-        brickWidth = brick.getWidth();
         brickHeight = brick.getHeight();
-
-        brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
         brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
 
         //interpoliaciniu daugianario metodu :
         ballY = brickY + brickHeight;
         ballX = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
-
-
 
         setBallXY();
     }
@@ -254,17 +229,12 @@ public class BallClass {
     {
         View brick = brickField.getChildAt(brickId);
 
-        double brickX, brickY, brickWidth, brickHeight;
-
-
-        brickWidth = brick.getWidth();
-        brickHeight = brick.getHeight();
-
-        brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
+        double brickY;
         brickY = (double) brick.getY() + brickFieldParams.topMargin; //50 - gridlayout top margin
 
         previousBallY = ballY;
         previousBallX = ballX;
+
         //interpoliaciniu daugianario metodu :
         ballY = brickY - ballPicture.getHeight();
         ballX = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
@@ -275,18 +245,14 @@ public class BallClass {
     {
         View brick = brickField.getChildAt(brickId);
 
-        double brickX, brickY, brickWidth, brickHeight;
-
-
-        brickWidth = brick.getWidth();
-        brickHeight = brick.getHeight();
+        double brickX;
 
         brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
-        brickY = (double) brick.getY() + brickFieldParams.topMargin + brickHeight; //50 - gridlayout top margin
 
         //interpoliaciniu daugianario metodu :
         ballX = brickX - ballPicture.getWidth();
         ballY = vectorFunction * ballX +(previousBallY + vectorFunction * -1 * previousBallX);
+
         setBallXY();
     }
 
@@ -294,19 +260,15 @@ public class BallClass {
     {
         View brick = brickField.getChildAt(brickId);
 
-        double brickX, brickY, brickWidth, brickHeight;
-
+        double brickX, brickWidth;
 
         brickWidth = brick.getWidth();
-        brickHeight = brick.getHeight();
 
         brickX = (double) brick.getX() + brickFieldParams.leftMargin; //12 - gridlayout start margin
-        brickY = (double) brick.getY() + brickFieldParams.topMargin + brickHeight; //50 - gridlayout top margin
 
         //interpoliaciniu daugianario metodu :
         ballX = brickX + brickWidth;
         ballY = vectorFunction * ballX +(previousBallY + vectorFunction * -1 * previousBallX);
-        //ballY = (ballY-(vectorFunction*-1*ballX+previousBallY))/vectorFunction;
         setBallXY();
     }
 
@@ -384,14 +346,12 @@ public class BallClass {
         else
             _isBallMovementUp=false;
 
-        locationVectorX = (double) (locationVectorX - ballX);
-        locationVectorY = (double) (locationVectorY - ballY);
+        locationVectorX = (locationVectorX - ballX);
+        locationVectorY = (locationVectorY - ballY);
         vectorFunction = (locationVectorY / locationVectorX);
 
         deltax = (speed / Math.sqrt(vectorFunction * vectorFunction + 1));
         deltay = Math.sqrt(speed * speed - deltax * deltax);
-        //log(ballX);
-        //log(ballY);
     }
 
     public void calcVector(double x, double y)
@@ -399,8 +359,8 @@ public class BallClass {
         locationVectorX = x;
         locationVectorY = y;
 
-        locationVectorX = (double) (locationVectorX - ballX);
-        locationVectorY = (double) (locationVectorY - ballY);
+        locationVectorX = (locationVectorX - ballX);
+        locationVectorY = (locationVectorY - ballY);
 
         vectorFunction = (locationVectorY / locationVectorX);
 
@@ -408,7 +368,7 @@ public class BallClass {
         deltay = Math.sqrt(speed * speed - deltax * deltax);
     }
 
-    public int checkBrickCollision()
+    public void checkBrickCollision()
     {
         brickFieldParams = (ViewGroup.MarginLayoutParams) brickField.getLayoutParams();
         int brickCount = brickField.getChildCount();
@@ -416,11 +376,12 @@ public class BallClass {
         if(brickCount == 0)
         {
                isOtherLevel = true;
-               return -2;
+               return;
         }
 
         double brickX, brickY, brickWidth, brickHeight;
         double ballWidth, ballHeight;
+        double tempBallY, tempBallX;
 
         ballWidth = ballPicture.getWidth();
         ballHeight = ballPicture.getHeight();
@@ -436,153 +397,154 @@ public class BallClass {
 
             //check if brick collides with top left ball corner
             if(_isBallMovementUp) {
-                if (ballX >= brickX && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+
+                tempBallY = ballY + (deltay / 2);
+                if(_isBallMovementLeft)
+                    tempBallX = ballX + (deltax/2);
+                else tempBallX = ballX - (deltax/2);
+
+                if ((ballX >= brickX && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) ||
+                        (tempBallX >= brickX && tempBallX <= brickX + brickWidth && tempBallY >= brickY && tempBallY <= brickY + brickHeight)){
                     if(checkBrickCollisionBottom(i)) {
                         isBrickCollision = true;
                         calcBallXYNearBrickBottom(i);
                         brickField.removeViewInLayout(brick);
                         _isBallMovementUp=false;
-                        break;
+                        return;
                     }
                 }
 
-                if (ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
+                if ((ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) ||
+                        (tempBallX + ballWidth >= brickX && tempBallX + ballWidth <= brickX + brickWidth && tempBallY >= brickY && tempBallY <= brickY + brickHeight)) {
                     if(checkBrickCollisionBottom(i)) {
                         isBrickCollision = true;
                         calcBallXYNearBrickBottom(i);
                         brickField.removeViewInLayout(brick);
                         _isBallMovementUp=false;
-                        break;
+                        return;
                     }
                 }
             }
                 else // BALL MOVEMENT IS DOWN
                 {
-                    if (ballX >= brickX && ballX <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight){
+                    tempBallY = ballY - (deltay / 2);
+                    if(_isBallMovementLeft)
+                        tempBallX = ballX + (deltax/2);
+                    else tempBallX = ballX - (deltax/2);
+
+                    if ((ballX >= brickX && ballX <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight) ||
+                            (tempBallX>= brickX && tempBallX <= brickX + brickWidth && tempBallY + brickHeight >= brickY && tempBallY + brickHeight <= brickY + brickHeight)){
                         if(checkBrickCollisionTop(i)) {
                             isBrickCollision = true;
                             _isBallMovementUp = true;
                             calcBallXYNearBrickTop(i);
                             brickField.removeViewInLayout(brick);
-                            break;
+                            return;
                         }
                     }
-                    if (ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight) {
+                    if ((ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + brickWidth && ballY + brickHeight >= brickY && ballY + brickHeight <= brickY + brickHeight) ||
+                            (tempBallX + ballWidth >= brickX && tempBallX + ballWidth <= brickX + brickWidth && tempBallY + brickHeight >= brickY && tempBallY + brickHeight <= brickY + brickHeight)){
                         if(checkBrickCollisionTop(i)) {
                             isBrickCollision = true;
                             _isBallMovementUp = true;
                             calcBallXYNearBrickTop(i);
                             brickField.removeViewInLayout(brick);
-                            break;
+                            return;
                         }
                     }
                 }
 
                 if(_isBallMovementLeft) {
-                    if(ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
 
+                    tempBallX = ballX + (deltax / 2);
+                    if(_isBallMovementUp)
+                        tempBallY = ballY + (deltay/2);
+                    else tempBallY = ballY - (deltay/2);
+
+                    if((ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY >= brickY && ballY <= brickY + brickHeight) ||
+                            (tempBallX >= brickX + brickWidth - ballWidth && tempBallX <= brickX + brickWidth && tempBallY >= brickY && tempBallY <= brickY + brickHeight)) {
                         isBrickCollision = true;
                         _isBallMovementLeft=false;
                         calcBallXYNearBrickRight(i);
                         brickField.removeViewInLayout(brick);
-                        break;
+                        return;
                     }
-                    if(ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) {
+                    if((ballX >= brickX + brickWidth - ballWidth && ballX <= brickX + brickWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) ||
+                            (tempBallX >= brickX + brickWidth - ballWidth && tempBallX <= brickX + brickWidth && tempBallY + ballHeight >= brickY && tempBallY + ballHeight <= brickY + brickHeight)) {
                         isBrickCollision = true;
                         _isBallMovementLeft=false;
                         calcBallXYNearBrickRight(i);
                         brickField.removeViewInLayout(brick);
-                        break;
+                        return;
                     }
                 }
-                else {
-                    if(ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY >= brickY && ballY <= brickY + brickHeight) {
-                        isBrickCollision = true;
-                        _isBallMovementLeft=true;
-                        calcBallXYNearBrickLeft(i);
-                        brickField.removeViewInLayout(brick);
-                        break;
-                    }
-                    if(ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) {
-                        isBrickCollision = true;
-                        _isBallMovementLeft=true;
-                        calcBallXYNearBrickLeft(i);
-                        brickField.removeViewInLayout(brick);
-                        break;
-                    }
-                }
+                else { // ball movement right
 
+                    tempBallX = ballX - (deltax / 2);
+                    if(_isBallMovementUp)
+                        tempBallY = ballY + (deltay/2);
+                    else tempBallY = ballY - (deltay/2);
+
+                    if((ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY >= brickY && ballY <= brickY + brickHeight) ||
+                            (tempBallX + ballWidth >= brickX && tempBallX + ballWidth <= brickX + ballWidth && tempBallY >= brickY && tempBallY <= brickY + brickHeight)) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=true;
+                        calcBallXYNearBrickLeft(i);
+                        brickField.removeViewInLayout(brick);
+                        return;
+                    }
+                    if((ballX + ballWidth >= brickX && ballX + ballWidth <= brickX + ballWidth && ballY + ballHeight >= brickY && ballY + ballHeight <= brickY + brickHeight) ||
+                            (tempBallX + ballWidth >= brickX && tempBallX + ballWidth <= brickX + ballWidth && tempBallY + ballHeight >= brickY && tempBallY + ballHeight <= brickY + brickHeight)) {
+                        isBrickCollision = true;
+                        _isBallMovementLeft=true;
+                        calcBallXYNearBrickLeft(i);
+                        brickField.removeViewInLayout(brick);
+                        return;
+                    }
+                }
         }
-        return i;
     }
 
     public void checkPaddleCollision ()
     {
-        double paddleX, paddleY, paddleWidth, paddleHeight;
-        double MAXBOUNCEANGLE = 5*PI/12;
+        double paddleX, paddleY, paddleWidth;
+        double MAXBOUNCEANGLE = PI/3;
+
+        double tempBallY1 = ballY - (deltay / 2) + ballPicture.getHeight();
 
         paddleX = paddlePicture.getX();
         paddleY = paddlePicture.getY();
         paddleWidth = paddlePicture.getWidth();
-        paddleHeight = paddlePicture.getHeight();
 
-                if(ballX >= paddleX && ballX + ballPicture.getWidth() <= paddleX + paddleWidth && ballY+ballPicture.getWidth() >= paddleY && !_isBallMovementUp) {
+                if(ballX + ballPicture.getWidth() >= paddleX && ballX <= paddleX + paddleWidth) {
+                    if (ballY + ballPicture.getHeight() >= paddleY && (ballY + ballPicture.getHeight() <= paddleY + deltay || ballY + ballPicture.getHeight() - tempBallY1 <= paddleY + deltay)) {
+                        if (!_isBallMovementUp) {
 
-                    ballY = paddleY - ballPicture.getHeight();
-                    ballX = (ballY-(vectorFunction*-1*previousBallX+previousBallY))/vectorFunction;
+                            ballY = paddleY - ballPicture.getHeight();
+                            ballX = (ballY - (vectorFunction * -1 * previousBallX + previousBallY)) / vectorFunction;
 
-                    setBallXY();
+                            setBallXY();
 
-                    double relativeIntersectX = (paddleX + (paddleWidth/2)) - (ballX + (ballPicture.getWidth()/2));
-                    double normalizedRelativeIntersectionX = relativeIntersectX / (paddleWidth/2);
-                    double bounceAngle = normalizedRelativeIntersectionX * MAXBOUNCEANGLE;
+                            double relativeIntersectX = (paddleX + (paddleWidth / 2)) - (ballX + (ballPicture.getWidth() / 2));
+                            double normalizedRelativeIntersectionX = relativeIntersectX / (paddleWidth / 2);
+                            double bounceAngle = normalizedRelativeIntersectionX * MAXBOUNCEANGLE;
 
-                    locationVectorX = speed * -Math.sin(bounceAngle);
-                    locationVectorY = speed * Math.cos(bounceAngle);
+                            locationVectorX = speed * -Math.sin(bounceAngle);
+                            locationVectorY = speed * Math.cos(bounceAngle);
 
-                    deltax = ballX + locationVectorX;
-                    deltay = ballY - locationVectorY;
+                            deltax = ballX + locationVectorX;
+                            deltay = ballY - locationVectorY;
 
-                    if(normalizedRelativeIntersectionX > 0)
-                        _isBallMovementLeft=true;
-                    else
-                        _isBallMovementLeft=false;
+                            if (normalizedRelativeIntersectionX > 0)
+                                _isBallMovementLeft = true;
+                            else
+                                _isBallMovementLeft = false;
 
-                    calcVector(ballX + locationVectorX, ballY + locationVectorY);
-                    log(locationVectorX,"location vector X == ");
-                    log(locationVectorY,"location vector Y == ");
-                    log("------------");
+                            calcVector(ballX + locationVectorX, ballY + locationVectorY);
 
-                    _isBallMovementUp=true;
+                            _isBallMovementUp = true;
+                        }
+                    }
                 }
-    }
-
-    public void calcAngle(double p1x, double p1y, double p2x, double p2y, double fpx, double fpy)
-    {
-        double angle1 = Math.atan2(p1y - fpy, p1x - fpx);
-        double angle2 = Math.atan2(p2y - fpy, p2x - p2x);
-
-        double realAngle = Math.toDegrees(angle1 - angle2);
-        log(realAngle, "DA ANGLE BETWEEN POINTZZZZZ ======= ");
-    }
-
-    public void log(String x)
-    {
-        String msg = "kon to = " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
-    }
-    public void log(float x)
-    {
-        String msg = "kon to = " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
-    }
-
-    public void log(double x, String s)
-    {
-        String msg = s + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
     }
 }

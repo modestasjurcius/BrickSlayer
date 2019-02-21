@@ -15,11 +15,6 @@ import android.widget.ImageView;
 import com.example.nordcurrentgame.GameActivity;
 import com.example.nordcurrentgame.R;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.security.AccessController.getContext;
-
 public class BrickClass {
     //imageviews
     public ImageView brickPicture;
@@ -35,16 +30,9 @@ public class BrickClass {
         setBrickWall(activity);
     }
 
-    public void log(int x)
-    {
-        String msg = "kon to = " + x;
-        Logger log = Logger.getLogger("{Zdarowa}");
-        log.log(Level.INFO,msg);
-    }
-
     public Boolean setBrickWall(GameActivity activity)
     {
-        GridLayout brickField = (GridLayout) activity.findViewById(R.id.brickField);
+        GridLayout brickField = activity.findViewById(R.id.brickField);
         brickField.removeAllViews();
 
         Display display = activity.getWindowManager().getDefaultDisplay();
@@ -64,7 +52,6 @@ public class BrickClass {
             brickPicture.setLayoutParams(new android.view.ViewGroup.LayoutParams(width / 6,50));
 
             brickField.addView(brickPicture, i);
-            //set.connect();
             brickCount=i+1;
         }
         _isBrickWall = true;

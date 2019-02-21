@@ -4,15 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@drawable/bricks"
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/helloTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Welcome to the Brick Slayer"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="30sp"
+        android:typeface="normal"
         app:layout_constraintBottom_toTopOf="@+id/buttonStartGame"
         app:layout_constraintHorizontal_bias="0.444"
         app:layout_constraintLeft_toLeftOf="parent"
